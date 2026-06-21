@@ -6,23 +6,18 @@
  * @return {object}
  */
 function convertToObject(sourceString) {
-  return sourceString.split(';').reduce((stylesMap, declaration) => {
-    const colonIndex = declaration.indexOf(':');
-
-    if (colonIndex === -1) {
-      return stylesMap;
-    }
-
-    const key = declaration.slice(0, colonIndex).replace(/\s+/g, '');
-    const value = declaration.slice(colonIndex + 1).trim();
-
-    if (!key) {
-      return stylesMap;
-    }
-
-    stylesMap[key] = value;
-
-    return stylesMap;
-  }, {});
+  return sourceString
+    .split(';')
+    .map(part => part.trim())
+    .filter(part => part && part.includes(':'))
+    .map(part => {
+      const colonIndex = part.indexOf(':');
+      const key = part.slice(0, colonIndex).replace(/\s+/g, '');
+      const value = part.slice(colonIndex + 1).trim();
+      return [key, value];
+    })
+    .filter(([key]) => key)
+    .reduce((obj, [key, value]) => ({ ...obj, [key]: value }), {});
 }
+
 module.exports = convertToObject;
